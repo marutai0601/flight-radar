@@ -44,6 +44,7 @@ body { background:#0b1020; }
 .route-box { display:flex; align-items:center; gap:10px; margin:14px 0; padding:14px 16px; background:linear-gradient(135deg,#eef3ff,#f6f0ff); border-radius:14px; }
 .airport { flex:1; text-align:center; min-width:0; }
 .ap-code { font-size:24px; font-weight:800; color:#185FA5; }
+.ap-code.ja-long { font-size:17px; }
 .ap-name { font-size:10px; color:#777; margin-top:3px; line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .route-mid { display:flex; flex-direction:column; align-items:center; color:#bbb; }
 .route-line { width:36px; height:2px; background:repeating-linear-gradient(90deg,#c5c9e0 0,#c5c9e0 4px,transparent 4px,transparent 8px); margin-top:4px; }
@@ -101,7 +102,7 @@ body { background:#0b1020; }
 <div id="sheet">
   <div id="sheet-handle"></div>
   <div id="sheet-head">
-    <img id="airline-logo" alt="" onerror="this.style.display='none'"/>
+    <img id="airline-logo" alt="" onerror="logoFallback(this, this.dataset.iata)"/>
     <div id="sheet-head-text">
       <div id="sh-callsign"></div>
       <div id="sh-airline"></div>
@@ -125,14 +126,51 @@ const AIRLINES = {
   ANA:['全日本空輸','NH'], JAL:['日本航空','JL'], SKY:['スカイマーク','BC'],
   APJ:['Peach Aviation','MM'], JJP:['ジェットスター','GK'], FDA:['フジドリームエアラインズ','JH'],
   SNA:['ソラシドエア','6J'], ADO:['AIRDO','HD'], IBX:['IBEXエアラインズ','FW'],
-  KAL:['大韓航空','KE'], AAR:['アシアナ航空','OZ'], CPA:['キャセイパシフィック','CX'],
+  SFJ:['スターフライヤー','7G'], JTA:['日本トランスオーシャン航空','NU'], AHX:['天草エアライン','AHX'],
+  KAL:['大韓航空','KE'], AAR:['アシアナ航空','OZ'], JNA:['ジンエアー','LJ'],
+  ABL:['エアプサン','BX'], TWB:['ティーウェイ航空','TW'], ESR:['イースター航空','ZE'],
+  CPA:['キャセイパシフィック','CX'], HDA:['キャセイドラゴン','HX'], CAL:['チャイナエアライン','CI'],
+  EVA:['エバー航空','BR'], SJX:['スターラックス航空','JX'],
   CES:['中国東方航空','MU'], CSN:['中国南方航空','CZ'], CCA:['中国国際航空','CA'],
+  CHH:['海南航空','HU'], CSZ:['深圳航空','ZH'], CXA:['厦門航空','MF'], CQH:['春秋航空','9C'],
   UAL:['ユナイテッド航空','UA'], DAL:['デルタ航空','DL'], AAL:['アメリカン航空','AA'],
-  BAW:['ブリティッシュエアウェイズ','BA'], DLH:['ルフトハンザ','LH'], SIA:['シンガポール航空','SQ'],
-  THA:['タイ国際航空','TG'], MAS:['マレーシア航空','MH'], EVA:['エバー航空','BR'],
-  AFR:['エールフランス','AF'], KLM:['KLM','KL'], QFA:['カンタス航空','QF'],
-  UPS:['UPS','5X'], FDX:['フェデックス','FX'], NCA:['日本貨物航空','KZ'],
+  HAL:['ハワイアン航空','HA'], UPS:['UPS','5X'], FDX:['フェデックス','FX'],
+  BAW:['ブリティッシュエアウェイズ','BA'], DLH:['ルフトハンザ','LH'], AFR:['エールフランス','AF'],
+  KLM:['KLM','KL'], SWR:['スイス航空','LX'], AUA:['オーストリア航空','OS'],
+  FIN:['フィンエアー','AY'], SAS:['スカンジナビア航空','SK'], VIR:['ヴァージンアトランティック','VS'],
+  SIA:['シンガポール航空','SQ'], THA:['タイ国際航空','TG'], MAS:['マレーシア航空','MH'],
+  GIA:['ガルーダインドネシア航空','GA'], PAL:['フィリピン航空','PR'], CEB:['セブパシフィック航空','5J'],
+  VJC:['ベトジェットエア','VJ'], HVN:['ベトナム航空','VN'], AIC:['エア・インディア','AI'],
+  QFA:['カンタス航空','QF'], ANZ:['ニュージーランド航空','NZ'], UAE:['エミレーツ航空','EK'],
+  QTR:['カタール航空','QR'], ETD:['エティハド航空','EY'], NCA:['日本貨物航空','KZ'],
+  GTI:['アトラス航空','5Y'], CLX:['カーゴルクス','CV'], ACA:['エア・カナダ','AC'],
 };
+
+const AIRPORTS = {
+  HND:'羽田', NRT:'成田', KIX:'関西', ITM:'伊丹', UKB:'神戸', NGO:'中部',
+  CTS:'新千歳', FUK:'福岡', OKA:'那覇', KOJ:'鹿児島', KMJ:'熊本', NGS:'長崎',
+  OIT:'大分', KMI:'宮崎', HIJ:'広島', TAK:'高松', MYJ:'松山', KCZ:'高知',
+  TKS:'徳島', OKJ:'岡山', YGJ:'米子', IZO:'出雲', KMQ:'小松', TOY:'富山',
+  KIJ:'新潟', SDJ:'仙台', AOJ:'青森', AXT:'秋田', GAJ:'山形', HNA:'花巻',
+  MMB:'女満別', AKJ:'旭川', KUH:'釧路', HKD:'函館', OBO:'帯広', IBR:'茨城',
+  IWK:'岩国', UBJ:'山口宇部', KKJ:'北九州', SHB:'中標津', AOM:'青森',
+  ICN:'ソウル仁川', GMP:'ソウル金浦', PUS:'釜山', CJU:'済州', TAE:'大邱',
+  TPE:'台北桃園', TSA:'台北松山', KHH:'高雄', RMQ:'台中',
+  PEK:'北京', PKX:'北京大興', PVG:'上海浦東', SHA:'上海虹橋', CAN:'広州', SZX:'深圳',
+  CTU:'成都', CKG:'重慶', XIY:'西安', HGH:'杭州', NKG:'南京', WUH:'武漢', DLC:'大連',
+  HKG:'香港', MFM:'マカオ', MNL:'マニラ', CEB:'セブ', SIN:'シンガポール',
+  BKK:'バンコク', DMK:'バンコクドンムアン', KUL:'クアラルンプール', CGK:'ジャカルタ',
+  DPS:'バリ', SGN:'ホーチミン', HAN:'ハノイ', RGN:'ヤンゴン', PNH:'プノンペン',
+  DEL:'デリー', BOM:'ムンバイ', BLR:'バンガロール',
+  HNL:'ホノルル', GUM:'グアム', SFO:'サンフランシスコ', LAX:'ロサンゼルス',
+  SEA:'シアトル', ORD:'シカゴ', JFK:'ニューヨーク', EWR:'ニューアーク',
+  IAD:'ワシントン', DFW:'ダラス', ATL:'アトランタ', DEN:'デンバー', YVR:'バンクーバー',
+  LHR:'ロンドン', CDG:'パリ', FRA:'フランクフルト', MUC:'ミュンヘン', AMS:'アムステルダム',
+  HEL:'ヘルシンキ', ZRH:'チューリッヒ', VIE:'ウィーン', IST:'イスタンブール',
+  DXB:'ドバイ', DOH:'ドーハ', AUH:'アブダビ', SYD:'シドニー', MEL:'メルボルン',
+  AKL:'オークランド', BNE:'ブリスベン',
+};
+function airportJa(code) { return AIRPORTS[code] || null; }
 
 function aircraftInfo(code) {
   if (!code) return null;
@@ -191,17 +229,57 @@ function planeIcon(d, size) {
   const alt = d.alt;
   const stalk = d.onGround ? 0 : Math.min((alt||0)/12000*30, 34);
   const scale = size || 1.0;
-  const color = d.onGround ? '#8a8f9e' : altColor(alt);
-  const cx = 30, planeY = 18;
-  const shadowY = planeY + stalk + 6;
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="60" height="${shadowY+14}" viewBox="0 0 60 ${shadowY+14}" style="overflow:visible;">
-    <ellipse cx="${cx}" cy="${shadowY}" rx="${7*scale}" ry="${2.5*scale}" fill="rgba(0,0,0,0.35)"/>
-    ${stalk>2?`<line x1="${cx}" y1="${planeY+6}" x2="${cx}" y2="${shadowY}" stroke="rgba(180,200,255,0.4)" stroke-width="1" stroke-dasharray="2 2"/>`:''}
+  const color = d.onGround ? '#7d8493' : altColor(alt);
+  const dark = d.onGround ? '#5b616d' : shade(color, -0.28);
+  const light = shade(color, 0.18);
+  const cx = 34, planeY = 22;
+  const shadowY = planeY + stalk + 7;
+  const gid = 'g' + Math.abs(hashStr(d.icao)) % 100000;
+  // 上から見たジェット機シルエット（後退翼・エンジン・尾翼）
+  const body = `
+    <defs>
+      <linearGradient id="${gid}" x1="0" y1="-18" x2="0" y2="16" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="${light}"/>
+        <stop offset="0.5" stop-color="${color}"/>
+        <stop offset="1" stop-color="${dark}"/>
+      </linearGradient>
+    </defs>
     <g transform="translate(${cx},${planeY}) rotate(${hdg}) scale(${scale})">
-      <path d="M0,-13 L-4,-2 L-13,3 L-13,6 L-3,4 L-2,11 L-6,14 L-6,16 L0,14 L6,16 L6,14 L2,11 L3,4 L13,6 L13,3 L4,-2 Z" fill="${color}" stroke="#fff" stroke-width="1" stroke-linejoin="round"/>
-    </g>
+      <path d="
+        M0,-17
+        C1.6,-17 2.4,-14.5 2.6,-11
+        L2.8,-5.5
+        L15,1.5 L15,4 L2.9,1.2
+        L3,7
+        L6.2,10 L6.2,11.6 L2.7,10.4
+        L2.3,13.5
+        C2.1,15.2 1.2,16 0,16
+        C-1.2,16 -2.1,15.2 -2.3,13.5
+        L-2.7,10.4 L-6.2,11.6 L-6.2,10 L-3,7
+        L-2.9,1.2 L-15,4 L-15,1.5 L-2.8,-5.5
+        L-2.6,-11
+        C-2.4,-14.5 -1.6,-17 0,-17 Z"
+        fill="url(#${gid})" stroke="rgba(255,255,255,0.92)" stroke-width="0.7" stroke-linejoin="round"/>
+      <ellipse cx="-7.5" cy="1.3" rx="1.5" ry="1" fill="${dark}" opacity="0.6"/>
+      <ellipse cx="7.5" cy="1.3" rx="1.5" ry="1" fill="${dark}" opacity="0.6"/>
+    </g>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="68" height="${shadowY+16}" viewBox="0 0 68 ${shadowY+16}" style="overflow:visible;">
+    <ellipse cx="${cx}" cy="${shadowY}" rx="${8*scale}" ry="${2.8*scale}" fill="rgba(0,0,0,0.32)"/>
+    ${stalk>2?`<line x1="${cx}" y1="${planeY+8}" x2="${cx}" y2="${shadowY}" stroke="rgba(150,180,255,0.4)" stroke-width="1" stroke-dasharray="2 2"/>`:''}
+    ${body}
   </svg>`;
   return L.divIcon({ html:svg, className:'', iconAnchor:[cx, planeY] });
+}
+
+function hashStr(s) { let h=0; s=s||''; for(let i=0;i<s.length;i++){h=(h<<5)-h+s.charCodeAt(i)|0;} return h; }
+function shade(rgb, amt) {
+  const m = rgb.match(/\d+/g);
+  if (!m) return rgb;
+  const f = amt < 0 ? 0 : 255, p = Math.abs(amt);
+  const r = Math.round((f - +m[0]) * p + +m[0]);
+  const g = Math.round((f - +m[1]) * p + +m[1]);
+  const b = Math.round((f - +m[2]) * p + +m[2]);
+  return `rgb(${r},${g},${b})`;
 }
 
 function airlineInfo(cs) {
@@ -209,7 +287,16 @@ function airlineInfo(cs) {
   const code = cs.replace(/[0-9]/g,'').trim().toUpperCase();
   return AIRLINES[code] ? { name:AIRLINES[code][0], iata:AIRLINES[code][1] } : null;
 }
-function logoUrl(iata) { return `https://pics.avs.io/60/40/${iata}.png`; }
+function logoUrl(iata) { return `https://pics.avs.io/120/80/${iata}.png`; }
+function logoFallback(img, iata) {
+  const tries = [
+    `https://content.airhex.com/content/logos/airlines_${iata}_120_80_s.png`,
+    `https://images.kiwi.com/airlines/128/${iata}.png`,
+  ];
+  let i = parseInt(img.dataset.try || '0', 10);
+  if (i < tries.length) { img.dataset.try = i + 1; img.src = tries[i]; }
+  else { img.style.display = 'none'; }
+}
 function hdgLabel(d) {
   if (d==null) return '--';
   return ['北','北東','東','南東','南','南西','西','北西'][Math.round(d/45)%8];
@@ -242,7 +329,7 @@ async function openSheet(icao) {
   closeList();
   const al = airlineInfo(d.callsign);
   const logo = document.getElementById('airline-logo');
-  if (al) { logo.src = logoUrl(al.iata); logo.style.display='block'; }
+  if (al) { logo.dataset.iata = al.iata; logo.dataset.try = '0'; logo.src = logoUrl(al.iata); logo.style.display='block'; }
   else logo.style.display='none';
   document.getElementById('sh-callsign').textContent = d.callsign || icao;
   document.getElementById('sh-airline').textContent = al ? al.name : `登録国: ${d.country||'不明'}`;
@@ -267,10 +354,14 @@ async function openSheet(icao) {
   const det = await fetchDetails(d.callsign);
   if (activeIcao !== icao) return;
   if (det) {
+    const depJa = airportJa(det.depCode);
+    const arrJa = airportJa(det.arrCode);
+    const depCls = (depJa && depJa.length >= 5) ? 'ap-code ja-long' : 'ap-code';
+    const arrCls = (arrJa && arrJa.length >= 5) ? 'ap-code ja-long' : 'ap-code';
     rc.innerHTML = `<div class="route-box">
-      <div class="airport"><div class="ap-code">${det.depCode}</div><div class="ap-name">${det.depName}</div></div>
+      <div class="airport"><div class="${depCls}">${depJa || det.depCode}</div><div class="ap-name">${depJa ? det.depCode : det.depName}</div></div>
       <div class="route-mid"><span>✈</span><div class="route-line"></div></div>
-      <div class="airport"><div class="ap-code">${det.arrCode}</div><div class="ap-name">${det.arrName}</div></div>
+      <div class="airport"><div class="${arrCls}">${arrJa || det.arrCode}</div><div class="ap-name">${arrJa ? det.arrCode : det.arrName}</div></div>
     </div>`;
     if (det.acType) {
       const ai = aircraftInfo(det.acType);
@@ -294,7 +385,7 @@ function buildList() {
     const cached = routeCache[d.callsign];
     const sub = cached?`${cached.depCode} → ${cached.arrCode}`:(al?al.name:(d.country||''));
     return `<div class="list-item" onclick="openSheet('${d.icao}')">
-      ${al?`<img class="li-logo" src="${logoUrl(al.iata)}" onerror="this.style.visibility='hidden'"/>`:'<div class="li-logo"></div>'}
+      ${al?`<img class="li-logo" src="${logoUrl(al.iata)}" data-iata="${al.iata}" data-try="0" onerror="logoFallback(this, this.dataset.iata)"/>`:'<div class="li-logo"></div>'}
       <div class="li-text"><div class="li-cs">${d.callsign||d.icao}</div><div class="li-sub">${sub}</div></div>
       <div class="li-alt">${d.alt!=null?Math.round(d.alt).toLocaleString()+'m':(d.onGround?'地上':'')}</div>
     </div>`;
