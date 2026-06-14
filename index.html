@@ -251,6 +251,11 @@ async function openSheet(icao) {
   document.getElementById('m-hdg').textContent = hdgLabel(d.hdg);
   document.getElementById('m-status').textContent = d.onGround?'地上':'飛行中';
   document.getElementById('actype-container').innerHTML = '';
+  if (d.acType) {
+    const ai = aircraftInfo(d.acType);
+    document.getElementById('actype-container').innerHTML =
+      `<span class="actype-badge">✈ 機種: ${ai?ai[0]:d.acType}</span>`;
+  }
   if (markers[icao]) map.panTo(markers[icao].getLatLng(), {animate:true});
   document.getElementById('sheet').classList.add('open');
   const rc = document.getElementById('route-container');
@@ -300,79 +305,79 @@ function setStatus(msg,color){ document.getElementById('dot').style.background=c
 
 /* ===== フライトデータ取得（複数APIを順番に試す）===== */
 async function fetchFromADSBfi() {
-  const res = await fetch('https://api.adsb.fi/v1/aircraft?lat=34.757&lon=134.833&radius=120');
+  const res = await fetch('https://opendata.adsb.fi/api/v2/lat/34.757/lon/134.833/dist/100');
+  if (!res.ok) throw new Error('adsbfi ' + res.status);
   const data = await res.json();
-  return (data.aircraft || []).filter(a => a.lat && a.lon);
+  return (data.ac || []).filter(a => a.lat && a.lon);
+}
+
+async function fetchFromAirplanesLive() {
+  const res = await fetch('https://api.airplanes.live/v2/point/34.757/134.833/100');
+  if (!res.ok) throw new Error('airplanes ' + res.status);
+  const data = await res.json();
+  return (data.ac || []).filter(a => a.lat && a.lon);
+}
+
+async function fetchFromADSBLol() {
+  const res = await fetch('https://api.adsb.lol/v2/lat/34.757/lon/134.833/dist/100');
+  if (!res.ok) throw new Error('adsblol ' + res.status);
+  const data = await res.json();
+  return (data.ac || []).filter(a => a.lat && a.lon);
 }
 
 async function fetchFromOpenSky() {
-  const {lamin,lomin,lamax,lomax} = {lamin:34.2,lomin:134.1,lamax:35.3,lomax:135.6};
-  const res = await fetch(`https://opensky-network.org/api/states/all?lamin=${lamin}&lomin=${lomin}&lamax=${lamax}&lomax=${lomax}`);
-  if (!res.ok) throw new Error(res.status);
+  const res = await fetch('https://opensky-network.org/api/states/all?lamin=34.2&lomin=134.1&lamax=35.3&lomax=135.6');
+  if (!res.ok) throw new Error('opensky ' + res.status);
   const data = await res.json();
   return (data.states||[]).filter(s=>s[5]&&s[6]).map(s=>({
     hex:s[0], flight:(s[1]||'').trim(), lon:s[5], lat:s[6],
-    alt_baro:s[7], gs:s[9]?s[9]*1.944:null, track:s[10],
-    on_ground:s[8], country:s[2]
-  }));
-}
-
-async function fetchFromOpenSkyAnon() {
-  // 別エンドポイントを試す
-  const res = await fetch('https://opensky-network.org/api/states/all?lamin=34.2&lomin=134.1&lamax=35.3&lomax=135.6', {cache:'no-store'});
-  if (!res.ok) throw new Error(res.status);
-  const data = await res.json();
-  return (data.states||[]).filter(s=>s[5]&&s[6]).map(s=>({
-    hex:s[0], flight:(s[1]||'').trim(), lon:s[5], lat:s[6],
-    alt_baro:s[7], gs:s[9]?s[9]*1.944:null, track:s[10],
-    on_ground:s[8], country:s[2]
+    alt_baro:s[7]?s[7]/0.3048:null, gs:s[9]?s[9]*1.944:null, track:s[10],
+    on_ground:s[8], _opensky:true
   }));
 }
 
 function normalizeAircraft(raw) {
-  // ADSB.fi形式 or OpenSky形式を統一
-  if (raw.hex !== undefined && raw.flight !== undefined && raw.gs !== undefined) {
-    // ADSB.fi
+  if (raw._opensky) {
     return {
       icao: raw.hex,
       callsign: (raw.flight||'').trim() || raw.hex,
       lat: raw.lat, lon: raw.lon,
-      alt: raw.alt_baro ? raw.alt_baro * 0.3048 : null,
+      alt: raw.alt_baro != null ? raw.alt_baro * 0.3048 : null,
       vel: raw.gs ? raw.gs * 0.514444 : null,
       hdg: raw.track || 0,
-      onGround: raw.alt_baro < 100 || false,
-      country: raw.r || ''
-    };
-  } else {
-    // OpenSky
-    return {
-      icao: raw.hex,
-      callsign: (raw.flight||'').trim() || raw.hex,
-      lat: raw.lat, lon: raw.lon,
-      alt: raw.alt_baro,
-      vel: raw.gs ? raw.gs / 1.944 : null,
-      hdg: raw.track || 0,
       onGround: raw.on_ground || false,
-      country: raw.country || ''
+      country: '', acType: null,
     };
   }
+  // ADSB Exchange v2形式 (adsb.fi / airplanes.live / adsb.lol 共通)
+  const altRaw = raw.alt_baro;
+  const onGround = altRaw === 'ground';
+  const altFt = (typeof altRaw === 'number') ? altRaw : null;
+  return {
+    icao: raw.hex,
+    callsign: (raw.flight||'').trim() || raw.r || raw.hex,
+    lat: raw.lat, lon: raw.lon,
+    alt: altFt != null ? altFt * 0.3048 : null,
+    vel: raw.gs ? raw.gs * 0.514444 : null,
+    hdg: raw.track || raw.true_heading || 0,
+    onGround: onGround,
+    country: raw.r || '',
+    acType: raw.t || null,
+  };
 }
 
 async function fetchFlights() {
   let aircraft = [];
-  let source = '';
-  try {
-    aircraft = await fetchFromADSBfi();
-    source = 'ADSB.fi';
-  } catch(e) {
+  const sources = [fetchFromADSBfi, fetchFromADSBLol, fetchFromAirplanesLive, fetchFromOpenSky];
+  let ok = false;
+  for (const src of sources) {
     try {
-      aircraft = await fetchFromOpenSky();
-      source = 'OpenSky';
-    } catch(e2) {
-      setStatus('取得失敗・再試行中', '#E24B4A');
-      return;
-    }
+      aircraft = await src();
+      ok = true;
+      break;
+    } catch(e) { /* 次のAPIを試す */ }
   }
+  if (!ok) { setStatus('取得失敗・再試行中', '#E24B4A'); return; }
 
   const seen = new Set();
   aircraft.forEach(raw => {
@@ -380,9 +385,8 @@ async function fetchFlights() {
     if (!d.lat || !d.lon) return;
     seen.add(d.icao);
     flightData[d.icao] = d;
-    const cached = routeCache[d.callsign];
-    const size = (cached?.acType && aircraftInfo(cached.acType)) ? aircraftInfo(cached.acType)[1] : 1.0;
-    const icon = planeIcon(d, size);
+    const acSize = d.acType && aircraftInfo(d.acType) ? aircraftInfo(d.acType)[1] : 1.0;
+    const icon = planeIcon(d, acSize);
     if (markers[d.icao]) {
       markers[d.icao].setLatLng([d.lat, d.lon]).setIcon(icon);
     } else {
