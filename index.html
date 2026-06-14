@@ -10,83 +10,50 @@
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 html, body { height:100%; overflow:hidden; font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans",sans-serif; }
 body { background:#0b1020; }
-
 #map { position:absolute; inset:0; z-index:1; }
-
-/* 上部ステータスバー */
 #topbar {
   position:absolute; top:0; left:0; right:0; z-index:1000;
   display:flex; align-items:center; gap:8px;
   padding:calc(env(safe-area-inset-top) + 8px) 14px 8px;
-  background:linear-gradient(180deg,rgba(11,16,32,0.92),rgba(11,16,32,0));
+  background:linear-gradient(180deg,rgba(11,16,32,0.95),rgba(11,16,32,0));
   color:#fff; pointer-events:none;
 }
-#topbar h1 { font-size:14px; font-weight:700; text-shadow:0 1px 3px rgba(0,0,0,0.6); }
+#topbar h1 { font-size:14px; font-weight:700; }
 #status-pill {
   margin-left:auto; display:flex; align-items:center; gap:6px;
-  background:rgba(0,0,0,0.45); backdrop-filter:blur(8px);
+  background:rgba(0,0,0,0.5); backdrop-filter:blur(8px);
   padding:5px 10px; border-radius:20px; font-size:11px; pointer-events:auto;
 }
-#dot { width:7px; height:7px; border-radius:50%; background:#aaa; }
-
-/* 下部詳細シート */
+#dot { width:7px; height:7px; border-radius:50%; background:#aaa; flex-shrink:0; }
 #sheet {
   position:absolute; left:0; right:0; bottom:0; z-index:1000;
   background:#fff; border-radius:18px 18px 0 0;
   box-shadow:0 -4px 24px rgba(0,0,0,0.25);
   transform:translateY(100%); transition:transform 0.28s cubic-bezier(.4,0,.2,1);
   padding:0 18px calc(env(safe-area-inset-bottom) + 18px);
-  max-height:62%; overflow-y:auto;
+  max-height:65%; overflow-y:auto;
 }
 #sheet.open { transform:translateY(0); }
-#sheet-handle { width:38px; height:4px; background:#d5d5dd; border-radius:2px; margin:9px auto 6px; }
-
-#sheet-head { display:flex; align-items:center; gap:12px; padding:4px 0 2px; }
-#airline-logo {
-  width:54px; height:36px; object-fit:contain; flex-shrink:0;
-  background:#f4f5fa; border-radius:8px; padding:3px;
-}
+#sheet-handle { width:38px; height:4px; background:#d5d5dd; border-radius:2px; margin:9px auto 10px; }
+#sheet-head { display:flex; align-items:center; gap:12px; padding-bottom:4px; }
+#airline-logo { width:54px; height:36px; object-fit:contain; background:#f4f5fa; border-radius:8px; padding:3px; flex-shrink:0; }
 #sheet-head-text { flex:1; min-width:0; }
 #sh-callsign { font-size:18px; font-weight:700; color:#0b1020; }
-#sh-airline { font-size:12px; color:#888; margin-top:1px; }
-#sh-close {
-  width:30px; height:30px; border:none; border-radius:50%;
-  background:#f0f0f5; color:#666; font-size:16px; cursor:pointer; flex-shrink:0;
-}
-
-/* 路線表示 */
-.route-box {
-  display:flex; align-items:center; gap:10px;
-  margin:14px 0; padding:14px 16px;
-  background:linear-gradient(135deg,#eef3ff,#f6f0ff);
-  border-radius:14px;
-}
+#sh-airline { font-size:12px; color:#888; margin-top:2px; }
+#sh-close { width:30px; height:30px; border:none; border-radius:50%; background:#f0f0f5; color:#666; font-size:16px; cursor:pointer; flex-shrink:0; }
+.route-box { display:flex; align-items:center; gap:10px; margin:14px 0; padding:14px 16px; background:linear-gradient(135deg,#eef3ff,#f6f0ff); border-radius:14px; }
 .airport { flex:1; text-align:center; min-width:0; }
-.ap-code { font-size:24px; font-weight:800; color:#185FA5; letter-spacing:0.5px; }
-.ap-name { font-size:10px; color:#777; margin-top:3px; line-height:1.3;
-  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.ap-code { font-size:24px; font-weight:800; color:#185FA5; }
+.ap-name { font-size:10px; color:#777; margin-top:3px; line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .route-mid { display:flex; flex-direction:column; align-items:center; color:#bbb; }
-.route-mid .plane-ico { font-size:15px; }
-.route-line { width:40px; height:2px; background:repeating-linear-gradient(90deg,#c5c9e0 0,#c5c9e0 4px,transparent 4px,transparent 8px); margin-top:3px; }
-
-.route-loading { text-align:center; font-size:12px; color:#aaa; padding:14px; }
-.route-hint { text-align:center; font-size:11px; color:#bbb; padding:10px; line-height:1.5; }
-
-/* メトリクスカード */
-.metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:6px; }
+.route-line { width:36px; height:2px; background:repeating-linear-gradient(90deg,#c5c9e0 0,#c5c9e0 4px,transparent 4px,transparent 8px); margin-top:4px; }
+.route-hint { text-align:center; font-size:11px; color:#bbb; padding:12px; line-height:1.6; }
+.metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-top:8px; }
 .metric { background:#f7f8fc; border-radius:11px; padding:10px 4px; text-align:center; }
 .metric-label { font-size:10px; color:#999; margin-bottom:4px; }
 .metric-val { font-size:14px; font-weight:700; color:#0b1020; }
 .metric-val small { font-size:10px; font-weight:500; color:#999; }
-
-/* 機種バッジ */
-.actype-badge {
-  display:inline-flex; align-items:center; gap:5px;
-  background:#0b1020; color:#fff; font-size:12px; font-weight:600;
-  padding:5px 12px; border-radius:20px; margin-top:12px;
-}
-
-/* リストトグルボタン */
+.actype-badge { display:inline-flex; align-items:center; gap:5px; background:#0b1020; color:#fff; font-size:12px; font-weight:600; padding:5px 12px; border-radius:20px; margin-top:12px; }
 #list-btn {
   position:absolute; right:14px; bottom:calc(env(safe-area-inset-bottom) + 18px);
   z-index:999; width:50px; height:50px; border-radius:50%;
@@ -94,8 +61,6 @@ body { background:#0b1020; }
   box-shadow:0 4px 14px rgba(0,0,0,0.3); cursor:pointer;
   display:flex; align-items:center; justify-content:center;
 }
-
-/* リストパネル */
 #list-panel {
   position:absolute; left:0; right:0; bottom:0; z-index:1001;
   background:#fff; border-radius:18px 18px 0 0;
@@ -105,11 +70,7 @@ body { background:#0b1020; }
   padding-bottom:calc(env(safe-area-inset-bottom) + 10px);
 }
 #list-panel.open { transform:translateY(0); }
-#list-head {
-  position:sticky; top:0; background:#fff; z-index:2;
-  display:flex; align-items:center; padding:14px 18px 10px;
-  border-bottom:1px solid #f0f0f0;
-}
+#list-head { position:sticky; top:0; background:#fff; z-index:2; display:flex; align-items:center; padding:14px 18px 10px; border-bottom:1px solid #f0f0f0; }
 #list-head h2 { font-size:15px; font-weight:700; color:#0b1020; }
 #list-head button { margin-left:auto; background:#f0f0f5; border:none; width:28px; height:28px; border-radius:50%; font-size:15px; color:#666; cursor:pointer; }
 .list-item { display:flex; align-items:center; gap:10px; padding:11px 18px; border-bottom:1px solid #f5f5f5; cursor:pointer; }
@@ -119,26 +80,17 @@ body { background:#0b1020; }
 .li-cs { font-size:14px; font-weight:600; color:#0b1020; }
 .li-sub { font-size:11px; color:#999; margin-top:1px; }
 .li-alt { font-size:11px; color:#185FA5; font-weight:600; flex-shrink:0; }
-
-.leaflet-tooltip.plane-label {
-  background:rgba(11,16,32,0.82); border:none; box-shadow:none;
-  color:#fff; font-size:10px; font-weight:600; padding:2px 6px; border-radius:5px;
-}
-.leaflet-tooltip.plane-label::before { display:none; }
+.leaflet-tooltip { background:rgba(11,16,32,0.82)!important; border:none!important; box-shadow:none!important; color:#fff!important; font-size:10px!important; font-weight:600!important; padding:2px 6px!important; border-radius:5px!important; }
+.leaflet-tooltip::before { display:none!important; }
 </style>
 </head>
 <body>
-
 <div id="map"></div>
-
 <div id="topbar">
   <h1>✈ 加古川フライトレーダー</h1>
   <div id="status-pill"><span id="dot"></span><span id="statusmsg">読み込み中</span></div>
 </div>
-
 <button id="list-btn" onclick="toggleList()">☰</button>
-
-<!-- リストパネル -->
 <div id="list-panel">
   <div id="list-head">
     <h2>上空の航空機</h2>
@@ -146,38 +98,29 @@ body { background:#0b1020; }
   </div>
   <div id="list-body"></div>
 </div>
-
-<!-- 詳細シート -->
 <div id="sheet">
   <div id="sheet-handle"></div>
   <div id="sheet-head">
-    <img id="airline-logo" alt=""/>
+    <img id="airline-logo" alt="" onerror="this.style.display='none'"/>
     <div id="sheet-head-text">
       <div id="sh-callsign"></div>
       <div id="sh-airline"></div>
     </div>
     <button id="sh-close" onclick="closeSheet()">✕</button>
   </div>
-
   <div id="route-container"></div>
-
   <div class="metrics">
     <div class="metric"><div class="metric-label">高度</div><div class="metric-val" id="m-alt">--</div></div>
     <div class="metric"><div class="metric-label">速度</div><div class="metric-val" id="m-spd">--</div></div>
     <div class="metric"><div class="metric-label">方向</div><div class="metric-val" id="m-hdg">--</div></div>
     <div class="metric"><div class="metric-label">状態</div><div class="metric-val" id="m-status">--</div></div>
   </div>
-
   <div id="actype-container"></div>
 </div>
-
 <script>
-/* ===== 設定 ===== */
 const CENTER = [34.757, 134.833];
-const BBOX = { lamin:34.2, lomin:134.1, lamax:35.3, lomax:135.6 };
 const API_KEY = new URLSearchParams(location.search).get('key') || '';
 
-/* ICAO航空会社コード → 日本語名 + IATA(ロゴ用) */
 const AIRLINES = {
   ANA:['全日本空輸','NH'], JAL:['日本航空','JL'], SKY:['スカイマーク','BC'],
   APJ:['Peach Aviation','MM'], JJP:['ジェットスター','GK'], FDA:['フジドリームエアラインズ','JH'],
@@ -191,20 +134,20 @@ const AIRLINES = {
   UPS:['UPS','5X'], FDX:['フェデックス','FX'], NCA:['日本貨物航空','KZ'],
 };
 
-/* 機種コード → [表示名, サイズ係数] 大型機ほど大きく表示 */
 function aircraftInfo(code) {
   if (!code) return null;
   const c = code.toUpperCase();
   const map = {
-    A388:['A380',1.9], B748:['747-8',1.8], B744:['747',1.8],
-    B77W:['777-300',1.6], B772:['777-200',1.6], B773:['777-300',1.6], B77L:['777',1.6],
-    A359:['A350-900',1.5], A35K:['A350-1000',1.5], A332:['A330-200',1.45], A333:['A330-300',1.45],
+    A388:['A380',1.9], B748:['747-8',1.8], B744:['747-400',1.8],
+    B77W:['777-300ER',1.6], B772:['777-200',1.6], B773:['777-300',1.6],
+    A359:['A350-900',1.5], A332:['A330-200',1.45], A333:['A330-300',1.45],
     B788:['787-8',1.4], B789:['787-9',1.4], B78X:['787-10',1.45],
-    B763:['767-300',1.35], B764:['767-400',1.35], B762:['767-200',1.35],
+    B763:['767-300',1.35], B762:['767-200',1.3],
     A321:['A321',1.05], A20N:['A320neo',1.0], A320:['A320',1.0], A319:['A319',0.95], A21N:['A321neo',1.05],
-    B738:['737-800',1.0], B739:['737-900',1.05], B737:['737',1.0], B73H:['737-800',1.0], B38M:['737 MAX',1.0],
-    E170:['E170',0.8], E190:['E190',0.85], E75L:['E175',0.8], CRJ7:['CRJ700',0.75], CRJ9:['CRJ900',0.78],
-    DH8D:['Q400',0.75], AT76:['ATR72',0.7], AT75:['ATR72',0.7],
+    B738:['737-800',1.0], B739:['737-900',1.05], B38M:['737 MAX8',1.0],
+    E170:['E170',0.8], E190:['E190',0.85], E75L:['E175',0.8],
+    CRJ7:['CRJ700',0.75], CRJ9:['CRJ900',0.78],
+    DH8D:['Q400',0.75], AT76:['ATR72',0.7],
   };
   if (map[c]) return map[c];
   if (/^A38/.test(c)) return ['A380',1.9];
@@ -216,54 +159,46 @@ function aircraftInfo(code) {
   if (/^B76/.test(c)) return ['767',1.35];
   if (/^A32|^A31|^A20|^A21/.test(c)) return ['A320系',1.0];
   if (/^B73|^B38/.test(c)) return ['737系',1.0];
-  if (/^E1|^E7|^E9|^CRJ/.test(c)) return ['リージョナル機',0.8];
+  if (/^E[1-9]|^CRJ/.test(c)) return ['リージョナル機',0.8];
   return [c, 1.0];
 }
 
-/* ===== 地図初期化 ===== */
-const map = L.map('map', { zoomControl:false }).setView(CENTER, 9);
+const map = L.map('map', { zoomControl:false }).setView(CENTER, 10);
 L.control.zoom({ position:'bottomleft' }).addTo(map);
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
   attribution:'© OpenStreetMap © CARTO', maxZoom:18, subdomains:'abcd'
 }).addTo(map);
-
-L.circle(CENTER, { radius:45000, color:'#4a8fe0', weight:1, fillOpacity:0.05, dashArray:'6 6' }).addTo(map);
+const rangeCircle = L.circle(CENTER, { radius:45000, color:'#4a8fe0', weight:1, fillOpacity:0.05, dashArray:'6 6' }).addTo(map);
+map.fitBounds(rangeCircle.getBounds(), { padding:[10,10] });
 L.marker(CENTER, {
-  icon:L.divIcon({ html:'<div style="width:10px;height:10px;border-radius:50%;background:#E24B4A;border:2px solid #fff;box-shadow:0 0 6px rgba(226,75,74,0.9);"></div>', className:'', iconAnchor:[5,5] })
+  icon:L.divIcon({ html:'<div style="width:10px;height:10px;border-radius:50%;background:#E24B4A;border:2px solid #fff;box-shadow:0 0 8px rgba(226,75,74,0.8);"></div>', className:'', iconAnchor:[5,5] })
 }).addTo(map);
 
-const markers = {};
-const flightData = {};
-const routeCache = {};
+const markers = {}, flightData = {}, routeCache = {};
 let activeIcao = null;
 
-/* ===== 高度→色（低空=シアン, 高高度=濃紺）===== */
 function altColor(alt) {
   if (alt == null) return '#9aa3b8';
   const t = Math.min(alt / 12000, 1);
-  const lerp = (a,b) => Math.round(a + (b-a)*t);
-  const r = lerp(45,21), g = lerp(190,52), b = lerp(220,140);
+  const r = Math.round(45 + (21-45)*t);
+  const g = Math.round(190 + (52-190)*t);
+  const b = Math.round(220 + (140-220)*t);
   return `rgb(${r},${g},${b})`;
 }
 
-/* ===== 飛行機アイコン（高度ストーク付き擬似3D）===== */
 function planeIcon(d, size) {
   const hdg = d.hdg || 0;
   const alt = d.alt;
-  const stalk = d.onGround ? 0 : Math.min((alt||0)/12000 * 30, 34);
+  const stalk = d.onGround ? 0 : Math.min((alt||0)/12000*30, 34);
   const scale = size || 1.0;
-  const px = 26 * scale;
   const color = d.onGround ? '#8a8f9e' : altColor(alt);
   const cx = 30, planeY = 18;
   const shadowY = planeY + stalk + 6;
-
-  const svg = `
-  <svg xmlns="http://www.w3.org/2000/svg" width="60" height="${shadowY+14}" viewBox="0 0 60 ${shadowY+14}" style="overflow:visible;">
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="60" height="${shadowY+14}" viewBox="0 0 60 ${shadowY+14}" style="overflow:visible;">
     <ellipse cx="${cx}" cy="${shadowY}" rx="${7*scale}" ry="${2.5*scale}" fill="rgba(0,0,0,0.35)"/>
-    ${stalk>2 ? `<line x1="${cx}" y1="${planeY+6}" x2="${cx}" y2="${shadowY}" stroke="rgba(180,200,255,0.45)" stroke-width="1" stroke-dasharray="2 2"/>` : ''}
-    <g transform="translate(${cx},${planeY}) rotate(${hdg}) scale(${scale})" style="transform-origin:center;">
-      <path d="M0,-13 L-4,-2 L-13,3 L-13,6 L-3,4 L-2,11 L-6,14 L-6,16 L0,14 L6,16 L6,14 L2,11 L3,4 L13,6 L13,3 L4,-2 Z"
-        fill="${color}" stroke="#fff" stroke-width="1" stroke-linejoin="round"/>
+    ${stalk>2?`<line x1="${cx}" y1="${planeY+6}" x2="${cx}" y2="${shadowY}" stroke="rgba(180,200,255,0.4)" stroke-width="1" stroke-dasharray="2 2"/>`:''}
+    <g transform="translate(${cx},${planeY}) rotate(${hdg}) scale(${scale})">
+      <path d="M0,-13 L-4,-2 L-13,3 L-13,6 L-3,4 L-2,11 L-6,14 L-6,16 L0,14 L6,16 L6,14 L2,11 L3,4 L13,6 L13,3 L4,-2 Z" fill="${color}" stroke="#fff" stroke-width="1" stroke-linejoin="round"/>
     </g>
   </svg>`;
   return L.divIcon({ html:svg, className:'', iconAnchor:[cx, planeY] });
@@ -272,23 +207,19 @@ function planeIcon(d, size) {
 function airlineInfo(cs) {
   if (!cs) return null;
   const code = cs.replace(/[0-9]/g,'').trim().toUpperCase();
-  return AIRLINES[code] ? { name:AIRLINES[code][0], iata:AIRLINES[code][1], icao:code } : null;
+  return AIRLINES[code] ? { name:AIRLINES[code][0], iata:AIRLINES[code][1] } : null;
 }
 function logoUrl(iata) { return `https://pics.avs.io/60/40/${iata}.png`; }
-
 function hdgLabel(d) {
-  if (d == null) return '--';
-  const n = ['北','北東','東','南東','南','南西','西','北西'];
-  return n[Math.round(d/45)%8];
+  if (d==null) return '--';
+  return ['北','北東','東','南東','南','南西','西','北西'][Math.round(d/45)%8];
 }
 
-/* ===== AviationStack で路線+機種取得（タップ時のみ）===== */
 async function fetchDetails(callsign) {
   if (!API_KEY) return null;
   if (routeCache[callsign] !== undefined) return routeCache[callsign];
   try {
-    const url = `https://api.aviationstack.com/v1/flights?access_key=${API_KEY}&flight_icao=${callsign}&limit=1`;
-    const res = await fetch(url);
+    const res = await fetch(`https://api.aviationstack.com/v1/flights?access_key=${API_KEY}&flight_icao=${callsign}&limit=1`);
     const data = await res.json();
     if (data.data && data.data.length > 0) {
       const f = data.data[0];
@@ -300,125 +231,184 @@ async function fetchDetails(callsign) {
       routeCache[callsign] = result;
       return result;
     }
-    routeCache[callsign] = null;
-    return null;
+    routeCache[callsign] = null; return null;
   } catch(e) { routeCache[callsign] = null; return null; }
 }
 
-/* ===== 詳細シート表示 ===== */
 async function openSheet(icao) {
   activeIcao = icao;
   const d = flightData[icao];
   if (!d) return;
   closeList();
-
   const al = airlineInfo(d.callsign);
   const logo = document.getElementById('airline-logo');
   if (al) { logo.src = logoUrl(al.iata); logo.style.display='block'; }
-  else { logo.style.display='none'; }
-
+  else logo.style.display='none';
   document.getElementById('sh-callsign').textContent = d.callsign || icao;
   document.getElementById('sh-airline').textContent = al ? al.name : `登録国: ${d.country||'不明'}`;
-  document.getElementById('m-alt').innerHTML = d.alt!=null ? `${Math.round(d.alt).toLocaleString()}<small>m</small>` : '--';
-  document.getElementById('m-spd').innerHTML = d.vel!=null ? `${Math.round(d.vel*3.6)}<small>km/h</small>` : '--';
+  document.getElementById('m-alt').innerHTML = d.alt!=null?`${Math.round(d.alt).toLocaleString()}<small>m</small>`:'--';
+  document.getElementById('m-spd').innerHTML = d.vel!=null?`${Math.round(d.vel*3.6)}<small>km/h</small>`:'--';
   document.getElementById('m-hdg').textContent = hdgLabel(d.hdg);
-  document.getElementById('m-status').textContent = d.onGround ? '地上' : '飛行中';
+  document.getElementById('m-status').textContent = d.onGround?'地上':'飛行中';
   document.getElementById('actype-container').innerHTML = '';
-
-  const rc = document.getElementById('route-container');
-  if (markers[icao]) map.panTo(markers[icao].getLatLng(), { animate:true });
+  if (markers[icao]) map.panTo(markers[icao].getLatLng(), {animate:true});
   document.getElementById('sheet').classList.add('open');
-
+  const rc = document.getElementById('route-container');
   if (!API_KEY) {
-    rc.innerHTML = `<div class="route-hint">出発地・目的地・機種を表示するには<br>URLに <b>?key=APIキー</b> を付けてアクセスしてください</div>`;
+    rc.innerHTML = '<div class="route-hint">URLに ?key=APIキー を付けると<br>出発地・目的地・機種が表示されます</div>';
     return;
   }
-  rc.innerHTML = `<div class="route-loading">路線情報を取得中...</div>`;
+  rc.innerHTML = '<div class="route-hint">路線情報を取得中...</div>';
   const det = await fetchDetails(d.callsign);
   if (activeIcao !== icao) return;
   if (det) {
-    rc.innerHTML = `
-      <div class="route-box">
-        <div class="airport"><div class="ap-code">${det.depCode}</div><div class="ap-name">${det.depName}</div></div>
-        <div class="route-mid"><div class="plane-ico">✈</div><div class="route-line"></div></div>
-        <div class="airport"><div class="ap-code">${det.arrCode}</div><div class="ap-name">${det.arrName}</div></div>
-      </div>`;
+    rc.innerHTML = `<div class="route-box">
+      <div class="airport"><div class="ap-code">${det.depCode}</div><div class="ap-name">${det.depName}</div></div>
+      <div class="route-mid"><span>✈</span><div class="route-line"></div></div>
+      <div class="airport"><div class="ap-code">${det.arrCode}</div><div class="ap-name">${det.arrName}</div></div>
+    </div>`;
     if (det.acType) {
       const ai = aircraftInfo(det.acType);
       document.getElementById('actype-container').innerHTML =
-        `<span class="actype-badge">✈ 機種: ${ai ? ai[0] : det.acType}</span>`;
+        `<span class="actype-badge">✈ 機種: ${ai?ai[0]:det.acType}</span>`;
       if (ai && markers[icao]) markers[icao].setIcon(planeIcon(d, ai[1]));
     }
   } else {
-    rc.innerHTML = `<div class="route-hint">この便の路線情報は見つかりませんでした<br><small>（無料枠の上限に達した可能性もあります）</small></div>`;
+    rc.innerHTML = '<div class="route-hint">路線情報が見つかりませんでした</div>';
   }
 }
 function closeSheet() { document.getElementById('sheet').classList.remove('open'); activeIcao=null; }
-
-/* ===== リスト ===== */
 function toggleList() { document.getElementById('list-panel').classList.toggle('open'); buildList(); }
 function closeList() { document.getElementById('list-panel').classList.remove('open'); }
 function buildList() {
   const body = document.getElementById('list-body');
-  const items = Object.values(flightData).sort((a,b)=>(a.alt||0)-(b.alt||0)).reverse();
-  if (!items.length) { body.innerHTML = '<div style="padding:24px;text-align:center;color:#bbb;font-size:13px;">現在、上空に航空機はいません</div>'; return; }
-  body.innerHTML = items.map(d => {
+  const items = Object.values(flightData).sort((a,b)=>(b.alt||0)-(a.alt||0));
+  if (!items.length) { body.innerHTML='<div style="padding:24px;text-align:center;color:#bbb;font-size:13px;">現在、上空に航空機はいません</div>'; return; }
+  body.innerHTML = items.map(d=>{
     const al = airlineInfo(d.callsign);
     const cached = routeCache[d.callsign];
-    const sub = cached ? `${cached.depCode} → ${cached.arrCode}` : (al ? al.name : (d.country||''));
+    const sub = cached?`${cached.depCode} → ${cached.arrCode}`:(al?al.name:(d.country||''));
     return `<div class="list-item" onclick="openSheet('${d.icao}')">
-      ${al ? `<img class="li-logo" src="${logoUrl(al.iata)}" onerror="this.style.visibility='hidden'"/>` : '<div class="li-logo"></div>'}
+      ${al?`<img class="li-logo" src="${logoUrl(al.iata)}" onerror="this.style.visibility='hidden'"/>`:'<div class="li-logo"></div>'}
       <div class="li-text"><div class="li-cs">${d.callsign||d.icao}</div><div class="li-sub">${sub}</div></div>
       <div class="li-alt">${d.alt!=null?Math.round(d.alt).toLocaleString()+'m':(d.onGround?'地上':'')}</div>
     </div>`;
   }).join('');
 }
 
-/* ===== メインデータ取得 ===== */
 function setStatus(msg,color){ document.getElementById('dot').style.background=color; document.getElementById('statusmsg').textContent=msg; }
 
-async function fetchFlights() {
-  const url = `https://opensky-network.org/api/states/all?lamin=${BBOX.lamin}&lomin=${BBOX.lomin}&lamax=${BBOX.lamax}&lomax=${BBOX.lomax}`;
-  try {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(res.status);
-    const data = await res.json();
-    const states = data.states || [];
-    const seen = new Set();
-    states.forEach(s => {
-      const icao=s[0], cs=(s[1]||'').trim()||s[0];
-      const lon=s[5], lat=s[6], alt=s[7], vel=s[9], hdg=s[10], onGround=s[8], country=s[2]||'不明';
-      if (!lat||!lon) return;
-      seen.add(icao);
-      const prev = flightData[icao];
-      flightData[icao] = { icao, callsign:cs, lat, lon, alt, vel, hdg, onGround, country };
-      const cached = routeCache[cs];
-      const size = (cached && cached.acType && aircraftInfo(cached.acType)) ? aircraftInfo(cached.acType)[1] : 1.0;
-      const icon = planeIcon(flightData[icao], size);
-      if (markers[icao]) markers[icao].setLatLng([lat,lon]).setIcon(icon);
-      else {
-        const m = L.marker([lat,lon],{icon}).addTo(map);
-        m.bindTooltip(cs,{permanent:true,direction:'right',offset:[16,-6],className:'plane-label',opacity:1});
-        m.on('click',()=>openSheet(icao));
-        markers[icao]=m;
-      }
-    });
-    Object.keys(markers).forEach(icao=>{ if(!seen.has(icao)){ map.removeLayer(markers[icao]); delete markers[icao]; delete flightData[icao]; }});
-    setStatus(`${seen.size}機`, '#3ddc84');
-    if (document.getElementById('list-panel').classList.contains('open')) buildList();
-    if (activeIcao && flightData[activeIcao]) {
-      const d = flightData[activeIcao];
-      document.getElementById('m-alt').innerHTML = d.alt!=null?`${Math.round(d.alt).toLocaleString()}<small>m</small>`:'--';
-      document.getElementById('m-spd').innerHTML = d.vel!=null?`${Math.round(d.vel*3.6)}<small>km/h</small>`:'--';
-    }
-  } catch(e) {
-    setStatus('取得失敗・再試行中', '#E24B4A');
+/* ===== フライトデータ取得（複数APIを順番に試す）===== */
+async function fetchFromADSBfi() {
+  const res = await fetch('https://api.adsb.fi/v1/aircraft?lat=34.757&lon=134.833&radius=120');
+  const data = await res.json();
+  return (data.aircraft || []).filter(a => a.lat && a.lon);
+}
+
+async function fetchFromOpenSky() {
+  const {lamin,lomin,lamax,lomax} = {lamin:34.2,lomin:134.1,lamax:35.3,lomax:135.6};
+  const res = await fetch(`https://opensky-network.org/api/states/all?lamin=${lamin}&lomin=${lomin}&lamax=${lamax}&lomax=${lomax}`);
+  if (!res.ok) throw new Error(res.status);
+  const data = await res.json();
+  return (data.states||[]).filter(s=>s[5]&&s[6]).map(s=>({
+    hex:s[0], flight:(s[1]||'').trim(), lon:s[5], lat:s[6],
+    alt_baro:s[7], gs:s[9]?s[9]*1.944:null, track:s[10],
+    on_ground:s[8], country:s[2]
+  }));
+}
+
+async function fetchFromOpenSkyAnon() {
+  // 別エンドポイントを試す
+  const res = await fetch('https://opensky-network.org/api/states/all?lamin=34.2&lomin=134.1&lamax=35.3&lomax=135.6', {cache:'no-store'});
+  if (!res.ok) throw new Error(res.status);
+  const data = await res.json();
+  return (data.states||[]).filter(s=>s[5]&&s[6]).map(s=>({
+    hex:s[0], flight:(s[1]||'').trim(), lon:s[5], lat:s[6],
+    alt_baro:s[7], gs:s[9]?s[9]*1.944:null, track:s[10],
+    on_ground:s[8], country:s[2]
+  }));
+}
+
+function normalizeAircraft(raw) {
+  // ADSB.fi形式 or OpenSky形式を統一
+  if (raw.hex !== undefined && raw.flight !== undefined && raw.gs !== undefined) {
+    // ADSB.fi
+    return {
+      icao: raw.hex,
+      callsign: (raw.flight||'').trim() || raw.hex,
+      lat: raw.lat, lon: raw.lon,
+      alt: raw.alt_baro ? raw.alt_baro * 0.3048 : null,
+      vel: raw.gs ? raw.gs * 0.514444 : null,
+      hdg: raw.track || 0,
+      onGround: raw.alt_baro < 100 || false,
+      country: raw.r || ''
+    };
+  } else {
+    // OpenSky
+    return {
+      icao: raw.hex,
+      callsign: (raw.flight||'').trim() || raw.hex,
+      lat: raw.lat, lon: raw.lon,
+      alt: raw.alt_baro,
+      vel: raw.gs ? raw.gs / 1.944 : null,
+      hdg: raw.track || 0,
+      onGround: raw.on_ground || false,
+      country: raw.country || ''
+    };
   }
 }
 
-setStatus('読み込み中','#EF9F27');
+async function fetchFlights() {
+  let aircraft = [];
+  let source = '';
+  try {
+    aircraft = await fetchFromADSBfi();
+    source = 'ADSB.fi';
+  } catch(e) {
+    try {
+      aircraft = await fetchFromOpenSky();
+      source = 'OpenSky';
+    } catch(e2) {
+      setStatus('取得失敗・再試行中', '#E24B4A');
+      return;
+    }
+  }
+
+  const seen = new Set();
+  aircraft.forEach(raw => {
+    const d = normalizeAircraft(raw);
+    if (!d.lat || !d.lon) return;
+    seen.add(d.icao);
+    flightData[d.icao] = d;
+    const cached = routeCache[d.callsign];
+    const size = (cached?.acType && aircraftInfo(cached.acType)) ? aircraftInfo(cached.acType)[1] : 1.0;
+    const icon = planeIcon(d, size);
+    if (markers[d.icao]) {
+      markers[d.icao].setLatLng([d.lat, d.lon]).setIcon(icon);
+    } else {
+      const m = L.marker([d.lat, d.lon], {icon}).addTo(map);
+      m.bindTooltip(d.callsign, {permanent:true, direction:'right', offset:[16,-6], opacity:1});
+      m.on('click', () => openSheet(d.icao));
+      markers[d.icao] = m;
+    }
+  });
+
+  Object.keys(markers).forEach(icao => {
+    if (!seen.has(icao)) { map.removeLayer(markers[icao]); delete markers[icao]; delete flightData[icao]; }
+  });
+
+  setStatus(`${seen.size}機を追跡中`, '#3ddc84');
+  if (document.getElementById('list-panel').classList.contains('open')) buildList();
+  if (activeIcao && flightData[activeIcao]) {
+    const d = flightData[activeIcao];
+    document.getElementById('m-alt').innerHTML = d.alt!=null?`${Math.round(d.alt).toLocaleString()}<small>m</small>`:'--';
+    document.getElementById('m-spd').innerHTML = d.vel!=null?`${Math.round(d.vel*3.6)}<small>km/h</small>`:'--';
+  }
+}
+
+setStatus('最新データ取得中...', '#EF9F27');
 fetchFlights();
-setInterval(fetchFlights, 30000);
+setInterval(fetchFlights, 10000);
 </script>
 </body>
 </html>
